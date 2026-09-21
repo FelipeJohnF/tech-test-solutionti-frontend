@@ -1,4 +1,4 @@
-#  Frontend teste Tecnico SolutionTI
+#  Frontend teste técnico SolutionTI
 
 ## UI
 
