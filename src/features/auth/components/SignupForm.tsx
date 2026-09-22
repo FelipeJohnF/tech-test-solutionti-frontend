@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Input } from "../../../components/Input";
 import type { SignupPayload } from "../../../types/auth";
-import { maskCPF, maskDate, stripMask } from "../../../utils/masks";
+import { maskCPF, maskDate, stripMask, formatToYYYYMMDD } from "../../../utils/masks";
 import { isValidCPF } from "../../../utils/validators";
 
 // The payload sent to the API does not need 'confirmarSenha'
@@ -59,6 +59,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onSubmit, loading = fals
     const payload: SignupDTO = {
       ...baseData,
       cpf: stripMask(formData.cpf),
+      dataNascimento: formatToYYYYMMDD(formData.dataNascimento)
     };
 
     console.log("Submitting payload:", payload);

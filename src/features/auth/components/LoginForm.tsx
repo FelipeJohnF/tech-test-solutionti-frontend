@@ -21,7 +21,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading = false 
       return;
     }
 
-    onSubmit(formData);
+     onSubmit({ ...formData, cpf: stripMask(formData.cpf) })
   };
 
   return (
