@@ -24,15 +24,17 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout, onAdminClick }) 
         {/* User Info & Actions */}
         {user && (
           <div className="flex items-center gap-3 sm:gap-4">
-            {/* Admin Button */}
-            <button
-              type="button"
-              onClick={onAdminClick}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-900 hover:bg-slate-800 text-white shadow-xs transition-colors"
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-              Painel Admin
-            </button>
+            {/* Admin Button — only rendered for admins */}
+            {user.role === "admin" && (
+              <button
+                type="button"
+                onClick={onAdminClick}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-900 hover:bg-slate-800 text-white shadow-xs transition-colors"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                Painel Admin
+              </button>
+            )}
 
             {/* User Info */}
             <div className="text-right hidden sm:block border-l border-slate-200 pl-3">
