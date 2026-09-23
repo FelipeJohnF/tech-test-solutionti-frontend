@@ -61,7 +61,7 @@ export default function App() {
       {currentView === "admin" && currentUser.role === "admin" ? (
         <AdminPage onBackToUserView={() => setCurrentView("user-addresses")} />
       ) : (
-        <AddressesPage />
+        <AddressesPage userId={currentUser.id} />
       )}
     </AppLayout>
   );
