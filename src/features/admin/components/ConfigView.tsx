@@ -3,9 +3,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { adminService } from "../../../services/adminService";
 import { Input } from "../../../components/Input";
 import { EditAddressModal } from "../../addresses/components/EditAddressModal";
+import { AddressFormFields, type AddressFormValues } from "../../addresses/components/AddressFormFields";
 import type { Address, CreateAddressDTO, UpdateAddressDTO } from "../../../types/address";
 import type { Role } from "../../../types/auth";
-import { maskCEP, maskCPF, maskDate, stripMask } from "../../../utils/masks";
+import { maskCPF, maskDate, stripMask, maskCEP } from "../../../utils/masks";
 import { isValidCPF } from "../../../utils/validators";
 
 export const ConfigView: React.FC = () => {
@@ -304,73 +305,12 @@ export const ConfigView: React.FC = () => {
               )}
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <Input
-                label="CEP"
-                placeholder="00000-000"
-                value={addressForm.cep}
-                onChange={(e) => setAddressForm({ ...addressForm, cep: maskCEP(e.target.value) })}
-                required
-              />
-              <Input
-                label="Número"
-                type="text"
-                placeholder="Ex: 123 ou S/N"
-                value={addressForm.numero}
-                onChange={(e) => setAddressForm({ ...addressForm, numero: e.target.value })}
-                required
-              />
-            </div>
-
-            <Input
-              label="Logradouro"
-              placeholder="Rua, Avenida, etc."
-              value={addressForm.logradouro}
-              onChange={(e) => setAddressForm({ ...addressForm, logradouro: e.target.value })}
-              required
+            <AddressFormFields
+              values={addressForm}
+              onChange={(values: AddressFormValues) => setAddressForm((prev) => ({ ...prev, ...values }))}
+              idPrefix="admin-endereco"
+              mainCheckboxLabel="Definir como endereço principal deste usuário"
             />
-
-            <Input
-              label="Complemento"
-              placeholder="Apto, Bloco, etc. (opcional)"
-              value={addressForm.complemento || ""}
-              onChange={(e) => setAddressForm({ ...addressForm, complemento: e.target.value })}
-            />
-
-            <div className="grid grid-cols-3 gap-3">
-              <Input
-                label="Bairro"
-                value={addressForm.bairro}
-                onChange={(e) => setAddressForm({ ...addressForm, bairro: e.target.value })}
-                required
-              />
-              <Input
-                label="Cidade"
-                value={addressForm.cidade}
-                onChange={(e) => setAddressForm({ ...addressForm, cidade: e.target.value })}
-                required
-              />
-              <Input
-                label="UF"
-                maxLength={2}
-                value={addressForm.estado}
-                onChange={(e) => setAddressForm({ ...addressForm, estado: e.target.value.toUpperCase() })}
-                required
-              />
-            </div>
-
-            <div className="flex items-center gap-2 pt-1">
-              <input
-                type="checkbox"
-                id="addr-main-checkbox"
-                checked={Boolean(addressForm.isMain)}
-                onChange={(e) => setAddressForm({ ...addressForm, isMain: e.target.checked })}
-                className="rounded border-slate-300 text-indigo-600"
-              />
-              <label htmlFor="addr-main-checkbox" className="text-xs font-medium text-slate-700">
-                Definir como endereço principal deste usuário
-              </label>
-            </div>
 
             <button
               type="submit"

@@ -1,21 +1,21 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { Address, UpdateAddressDTO } from "../../../types/address";
+import type { Address, CreateAddressDTO, UpdateAddressDTO } from "../../../types/address";
 import { addressService } from "../../../services/addressService";
 import { AddressCard } from "../components/AddressCard";
 import { EditAddressModal } from "../components/EditAddressModal";
+import { CreateAddressModal } from "../components/CreateAddressModal";
 
 interface AddressesPageProps {
   userId?: number;
-  onAddNewClick?: () => void;
 }
 
 export const AddressesPage: React.FC<AddressesPageProps> = ({
   userId = 1, // Fallback ID if not provided by route/context
-  onAddNewClick,
 }) => {
   const queryClient = useQueryClient();
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   // 1. QUERY: Fetch user addresses by numeric userId
   const {
@@ -65,6 +65,19 @@ export const AddressesPage: React.FC<AddressesPageProps> = ({
     },
   });
 
+  // 5. MUTATION: Create address (self-service — userId is injected here, never chosen by the user)
+  const createMutation = useMutation({
+    mutationFn: (dto: Omit<CreateAddressDTO, "userId">) =>
+      addressService.createAddress({ ...dto, userId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["addresses", userId] });
+      setIsCreateModalOpen(false);
+    },
+    onError: (err: any) => {
+      alert(err?.response?.data?.message || "Erro ao adicionar endereço.");
+    },
+  });
+
   // Handlers typed strictly as number
   const handleSetMain = (id: number) => {
     setMainMutation.mutate(id);
@@ -79,6 +92,10 @@ export const AddressesPage: React.FC<AddressesPageProps> = ({
   const handleSaveEdit = (updated: Address) => {
     const { id, userId: _uid, createdAt: _created, ...dto } = updated;
     updateMutation.mutate({ id, dto });
+  };
+
+  const handleCreate = async (dto: Omit<CreateAddressDTO, "userId">) => {
+    await createMutation.mutateAsync(dto);
   };
 
   const mainAddress = addresses.find((a) => a.isMain);
@@ -98,15 +115,13 @@ export const AddressesPage: React.FC<AddressesPageProps> = ({
             </p>
           </div>
 
-          {onAddNewClick && (
-            <button
-              type="button"
-              onClick={onAddNewClick}
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-all"
-            >
-              + Novo Endereço
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => setIsCreateModalOpen(true)}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-all"
+          >
+            + Novo Endereço
+          </button>
         </div>
 
         {/* Loading Indicator */}
@@ -194,6 +209,14 @@ export const AddressesPage: React.FC<AddressesPageProps> = ({
         address={editingAddress}
         onClose={() => setEditingAddress(null)}
         onSave={handleSaveEdit}
+      />
+
+      {/* Create Address Modal — no userId field, injected automatically from the logged-in user */}
+      <CreateAddressModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSave={handleCreate}
+        loading={createMutation.isPending}
       />
     </div>
   );
